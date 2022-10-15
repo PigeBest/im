@@ -2,9 +2,12 @@ package helper
 
 import (
 	"crypto/md5"
+	"crypto/tls"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jordan-wright/email"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/smtp"
 )
 
 type UserClaims struct {
@@ -55,4 +58,17 @@ func AnalyseToken(tokenString string) (*UserClaims, error) {
 		return nil, fmt.Errorf("analyse Token Error:%v", err)
 	}
 	return userClaim, nil
+}
+
+// SendCode
+// 发送验证码
+func SendCode(toUserEmail, code string) error {
+	e := email.NewEmail()
+	e.From = "Get <l18049444798@163.com>" // 发件人
+	e.To = []string{toUserEmail}
+	e.Subject = "验证码已发送，请查收"
+	e.HTML = []byte("您的验证码：<b>" + code + "</b>") // 邮件内容
+	return e.SendWithTLS("smtp.163.com:465",     // smtp.163.com:465,
+		smtp.PlainAuth("", "l18049444798@163.com", "SHYAHIDBPPYKQQHL", "smtp.163.com"), // 这里的密码是授权码,不是邮箱密码,授权码在邮箱设置里面,163邮箱是POP3/SMTP服务
+		&tls.Config{InsecureSkipVerify: true, ServerName: "smtp.163.com"})              // 这里的 ServerName 必须是 smtp.163.com
 }

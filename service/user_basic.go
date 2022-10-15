@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/gin-gonic/gin"
 	"im/helper"
-	models "im/models"
+	"im/models"
 	"log"
 	"net/http"
 )
@@ -59,5 +59,41 @@ func UserDetail(c *gin.Context) {
 		"code": 200,
 		"msg":  "Success",
 		"data": userBasic,
+	})
+}
+
+func SendCode(c *gin.Context) {
+	email := c.PostForm("email") //获取邮箱
+	if email == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "邮箱不能为空",
+		})
+		return
+	}
+	cnt, err := models.GetUserBasicCountByEmail(email)
+	if err != nil {
+		log.Printf("[DB ERROR]:%v\n", err)
+		return
+	}
+	if cnt > 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "当前邮箱已被注册",
+		})
+		return
+	}
+	err = helper.SendCode(email, "123456")
+	if err != nil {
+		log.Printf("[SendCode ERROR]:%v\n", err)
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "验证码发送失败",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "验证码发送成功",
 	})
 }
