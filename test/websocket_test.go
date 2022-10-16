@@ -47,6 +47,7 @@ func TestWebsocketServer(*testing.T) {
 func TestGinWebsocketServer(t *testing.T) {
 	r := gin.Default()
 	// 路由
-r.GET("/echo", func(ctx *gin.Context) {
-	r.Run(":8080")
+	r.GET("/echo", func(ctx *gin.Context) {
+		r.Run(":8080")
+	})
 }

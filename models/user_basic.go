@@ -37,8 +37,3 @@ func GetUserBasicByIdentity(identity primitive.ObjectID) (*UserBasic, error) {
 		Decode(ub)
 	return ub, err
 }
-
-func GetUserBasicCountByEmail(email string) (int64, error) {
-	return Mongo.Collection(UserBasic{}.CollectionName()).
-		CountDocuments(context.Background(), bson.D{{"email", email}})
-}
