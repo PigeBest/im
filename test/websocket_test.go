@@ -47,7 +47,28 @@ func TestWebsocketServer(*testing.T) {
 func TestGinWebsocketServer(t *testing.T) {
 	r := gin.Default()
 	// 路由
-
+	r.GET("/echo", func(c *gin.Context) {
+		ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		defer ws.Close()
+		for {
+			// 读取ws中的数据
+			mt, message, err := ws.ReadMessage()
+			if err != nil {
+				log.Println(err)
+				break
+			}
+			log.Printf("recv: %s", message)
+			err = ws.WriteMessage(mt, message)
+			if err != nil {
+				log.Println(err)
+				break
+			}
+		}
+	})
 	r.GET("/echo", func(ctx *gin.Context) {
 		r.Run(":8080")
 	})
